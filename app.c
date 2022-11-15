@@ -21,18 +21,18 @@ int main() {
         line[strlen(line)-1] = '\0';
         char* command = strtok(line, " ");
         if(strcmp(command, "IJ") == 0) {
-            // 1. Verificar se existe um jogo em curso
+            // Verificar se existe um jogo em curso
             if(answer > 0) {
                 printf("Já existe um jogo em curso\n");
             }
             else  {
-                // 2. Se não existir, criar um novo jogo
+                // Se não existir, criar um novo jogo
                 answer = 42; // FIXME: devia ser aleatório
             }
         }
         else if(strcmp(command, "R") == 0) {
             if(answer == 0) {
-                // 1. Verificar se existe um jogo em curso
+                // Verificar se existe um jogo em curso
                 printf("Não existe um jogo em curso\n");
             }
             else {
