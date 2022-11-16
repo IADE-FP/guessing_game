@@ -3,75 +3,47 @@
 #include <string.h>
 #include <stdlib.h>
 
-int answer = 0;
-int score = 0;
-int attempts = 0;
-
-void reset() {
-    answer = 0;
-    score = 0;
-    attempts = 0;
-}
-
 int main() {
+    int value = -1; 
+    int score = 0;
+    int num_attempts = 0;
+
+    char* line = NULL;
+    size_t len = 0;
     while (true) {
-        char *line = NULL;
-        size_t len = 0;
         getline(&line, &len, stdin);
         line[strlen(line)-1] = '\0';
         char* command = strtok(line, " ");
         if(strcmp(command, "IJ") == 0) {
-            // Verificar se existe um jogo em curso
-            if(answer > 0) {
-                printf("Já existe um jogo em curso\n");
-            }
-            else  {
-                // Se não existir, criar um novo jogo
-                answer = 42; // FIXME: devia ser aleatório
-            }
-        }
-        else if(strcmp(command, "R") == 0) {
-            if(answer == 0) {
-                // Verificar se existe um jogo em curso
-                printf("Não existe um jogo em curso\n");
+            if(value != -1) {
+                printf("Já existe um jogo iniciado.\n");
             }
             else {
-                // Incrementar número de tentativas
-                attempts++;
-                // Ler o número
-                char* number = strtok(NULL, " ");
-                // Converter para inteiro
-                int num = atoi(number);
-                // Calcular pontuação
-                if(attempts == 1) {
-                    score = 10;
-                }
-                else if(attempts == 2) {
-                    score = 5;
-                }
-                else {
-                    score = 2;
-                }
-                // Comparar com o valor
-                if(num == answer) {
-                    printf("Acertou! Pontuação: %d\n", score);
-                    reset();
-                }
-                else if(num < answer) {
-                    printf("Maior\n");
-                    if(attempts == 3) {
-                        printf("Perdeu! Pontuação: 0\n");
-                        reset();
-                    }
-                }
-                else {
-                    printf("Menor\n");
-                    if(attempts == 3) {
-                        printf("Perdeu! Pontuação: 0\n");
-                        reset();
-                    }
-                }
+                value = 47; // FIXME: devia ser random
+                printf("Jogo iniciado com sucesso.\n");
             }
+        }
+        else if (strcmp(command, "R") == 0) {
+            num_attempts++;
+            char* num = strtok(NULL, " ");
+            int number = atoi(num);
+            if(number == value) {
+                if(num_attempts == 1) score = 10;
+                else if(num_attempts == 2) score = 5;
+                else if(num_attempts == 3) score = 2;
+                printf("Ganhou com %d pontos\n", score);
+                score = 0;
+                value = -1;
+                num_attempts = 0;
+            }
+            if(num_attempts > 3){
+                printf("Perdeu.\n");
+                score = 0;
+                value = -1;
+                num_attempts = 0;
+            }
+            if(number > value) printf("Acima!\n");
+            else printf("Abaixo!\n");
         }
     }
     return 0;
