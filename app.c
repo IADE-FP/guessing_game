@@ -1,50 +1,81 @@
-#include <stdio.h>
 #include <stdbool.h>
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#define FILENAME "game.txt"
+
+typedef struct {
+    int number;
+    int attempts;
+} tGame, *Game;
+
+void reset(Game game) {
+    game->number = -1;
+    game->attempts = 0;
+}
 
 int main() {
-    int value = -1; 
-    int score = 0;
-    int num_attempts = 0;
-
-    char* line = NULL;
+    Game game = (Game)malloc(sizeof(tGame));
+    reset(game);
+    char *line = NULL;
+    char *command;
     size_t len = 0;
     while (true) {
         getline(&line, &len, stdin);
-        line[strlen(line)-1] = '\0';
-        char* command = strtok(line, " ");
-        if(strcmp(command, "IJ") == 0) {
-            if(value != -1) {
+        line[strlen(line) - 1] = '\0';
+        if (strlen(line) == 0) break;
+        command = strtok(line, " ");
+        if (strcmp(command, "IJ") == 0) {
+            if (game->number != -1)
                 printf("Já existe um jogo iniciado.\n");
-            }
             else {
-                value = 47; // FIXME: devia ser random
+                game->number = random() % 100;
                 printf("Jogo iniciado com sucesso.\n");
             }
-        }
-        else if (strcmp(command, "R") == 0) {
-            num_attempts++;
-            char* num = strtok(NULL, " ");
-            int number = atoi(num);
-            if(number == value) {
-                if(num_attempts == 1) score = 10;
-                else if(num_attempts == 2) score = 5;
-                else if(num_attempts == 3) score = 2;
-                printf("Ganhou com %d pontos\n", score);
-                score = 0;
-                value = -1;
-                num_attempts = 0;
+        } else if (strcmp(command, "R") == 0) {
+            game->attempts++;
+            char *num = strtok(NULL, " ");
+            int number = strtol(num, NULL, 10);
+            if (game->number == -1) {
+                printf("Jogo não iniciado.\n");
             }
-            if(num_attempts > 3){
+            else if (number == game->number) {
+                if (game->attempts == 1)
+                    printf("Ganhou com 10 pontos\n");
+                else if (game->attempts == 2)
+                    printf("Ganhou com 5 pontos\n");
+                else if (game->attempts == 3)
+                    printf("Ganhou com 2 pontos\n");
+                else
+                    printf("Ganhou com 1 ponto\n");
+                reset(game);
+            } else if (game->attempts > 3) {
                 printf("Perdeu.\n");
-                score = 0;
-                value = -1;
-                num_attempts = 0;
+                reset(game);
+            } else if (number > game->number)
+                printf("Acima!\n");
+            else
+                printf("Abaixo!\n");
+        } else if (strcmp(command, "G") == 0) {
+            FILE *file = fopen(FILENAME, "w");
+            fprintf(file, "%d %d", game->number, game->attempts);
+            fclose(file);
+            printf("Jogo guardado com sucesso.\n");
+        } else if (strcmp(command, "L") == 0) {
+            FILE *file = fopen(FILENAME, "r");
+            if (file == NULL)
+                printf("Não existe nenhum jogo guardado.\n");
+            else {
+                fscanf(file, "%d %d", &game->number, &game->attempts);
+                fclose(file);
+                printf("Jogo carregado com sucesso.\n");
             }
-            if(number > value) printf("Acima!\n");
-            else printf("Abaixo!\n");
+        } else {
+            printf("Instrução inválida.\n");
         }
     }
+    free(line);
+    free(game);
     return 0;
 }
